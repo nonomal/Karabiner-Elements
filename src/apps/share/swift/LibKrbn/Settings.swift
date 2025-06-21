@@ -1,4 +1,4 @@
-import Combine
+import AsyncAlgorithms
 import Foundation
 import SwiftUI
 
@@ -14,18 +14,39 @@ private func callback() {
 }
 
 extension LibKrbn {
+  @MainActor
   final class Settings: ObservableObject {
     static let shared = Settings()
 
     static let didConfigurationLoad = Notification.Name("didConfigurationLoad")
 
+    private var notificationsTask: Task<Void, Never>?
     private var watching = false
     private var didSetEnabled = false
-    private var saveDebouncer = Debouncer(delay: 0.2)
+
+    private let saveStream: AsyncStream<Void>
+    private let saveContinuation: AsyncStream<Void>.Continuation
+    private var saveTask: Task<Void, Never>?
 
     @Published var saveErrorMessage = ""
 
     private init() {
+      var continuation: AsyncStream<Void>.Continuation!
+      self.saveStream = AsyncStream<Void> { continuation = $0 }
+      self.saveContinuation = continuation
+
+      self.saveTask = Task { @MainActor in
+        for await _ in self.saveStream.debounce(for: .seconds(0.2)) {
+          print("save")
+
+          self.saveErrorMessage = ""
+          var errorMessageBuffer = [Int8](repeating: 0, count: 4 * 1024)
+          if !libkrbn_core_configuration_save(&errorMessageBuffer, errorMessageBuffer.count) {
+            self.saveErrorMessage = String(utf8String: errorMessageBuffer) ?? ""
+          }
+        }
+      }
+
       updateProperties()
       didSetEnabled = true
     }
@@ -45,29 +66,21 @@ extension LibKrbn {
 
       ConnectedDevices.shared.watch()
 
-      NotificationCenter.default.addObserver(
-        forName: ConnectedDevices.didConnectedDevicesUpdate,
-        object: nil,
-        queue: .main
-      ) { [weak self] _ in
-        guard let self = self else { return }
-
-        self.updateConnectedDeviceSettings()
+      notificationsTask = Task {
+        await withTaskGroup(of: Void.self) { group in
+          group.addTask {
+            for await _ in await NotificationCenter.default.notifications(
+              named: ConnectedDevices.didConnectedDevicesUpdate)
+            {
+              await self.updateConnectedDeviceSettings()
+            }
+          }
+        }
       }
     }
 
     func save() {
-      saveDebouncer.debounce { [weak self] in
-        guard let self = self else { return }
-
-        print("save")
-
-        self.saveErrorMessage = ""
-        var errorMessageBuffer = [Int8](repeating: 0, count: 4 * 1024)
-        if !libkrbn_core_configuration_save(&errorMessageBuffer, errorMessageBuffer.count) {
-          self.saveErrorMessage = String(cString: errorMessageBuffer)
-        }
-      }
+      saveContinuation.yield(())
     }
 
     public func updateProperties() {
@@ -105,7 +118,7 @@ extension LibKrbn {
         libkrbn_core_configuration_get_selected_profile_virtual_hid_keyboard_keyboard_type_v2(
           &buffer, buffer.count
         )
-        virtualHIDKeyboardKeyboardTypeV2 = String(cString: buffer)
+        virtualHIDKeyboardKeyboardTypeV2 = String(utf8String: buffer) ?? ""
       }
 
       virtualHIDKeyboardMouseKeyXYScale = Int(
@@ -159,14 +172,14 @@ extension LibKrbn {
           i, connectedDevice?.libkrbnDeviceIdentifiers,
           &buffer, buffer.count)
         {
-          fromJsonString = String(cString: buffer)
+          fromJsonString = String(utf8String: buffer) ?? ""
         }
 
         if libkrbn_core_configuration_get_selected_profile_simple_modification_to_json_string(
           i, connectedDevice?.libkrbnDeviceIdentifiers,
           &buffer, buffer.count)
         {
-          toJsonString = String(cString: buffer)
+          toJsonString = String(utf8String: buffer) ?? ""
         }
 
         let simpleModification = SimpleModification(
@@ -266,14 +279,14 @@ extension LibKrbn {
           i, connectedDevice?.libkrbnDeviceIdentifiers,
           &buffer, buffer.count)
         {
-          fromJsonString = String(cString: buffer)
+          fromJsonString = String(utf8String: buffer) ?? ""
         }
 
         if libkrbn_core_configuration_get_selected_profile_fn_function_key_to_json_string(
           i, connectedDevice?.libkrbnDeviceIdentifiers,
           &buffer, buffer.count)
         {
-          toJsonString = String(cString: buffer)
+          toJsonString = String(utf8String: buffer) ?? ""
         }
 
         let simpleModification = SimpleModification(
@@ -330,14 +343,14 @@ extension LibKrbn {
         if libkrbn_core_configuration_get_selected_profile_complex_modifications_rule_json_string(
           i, &buffer, buffer.count)
         {
-          jsonString = String(cString: buffer)
+          jsonString = String(utf8String: buffer)
         }
 
         var ruleDescription = ""
         if libkrbn_core_configuration_get_selected_profile_complex_modifications_rule_description(
           i, &buffer, buffer.count)
         {
-          ruleDescription = String(cString: buffer)
+          ruleDescription = String(utf8String: buffer) ?? ""
         }
 
         let complexModificationsRule = ComplexModificationsRule(
@@ -369,7 +382,7 @@ extension LibKrbn {
         errorMessageBuffer.count
       )
 
-      let errorMessage = String(cString: errorMessageBuffer)
+      let errorMessage = String(utf8String: errorMessageBuffer) ?? ""
       if errorMessage != "" {
         return errorMessage
       }
@@ -390,7 +403,7 @@ extension LibKrbn {
         errorMessageBuffer.count
       )
 
-      let errorMessage = String(cString: errorMessageBuffer)
+      let errorMessage = String(utf8String: errorMessageBuffer) ?? ""
       if errorMessage != "" {
         return errorMessage
       }
@@ -603,7 +616,7 @@ extension LibKrbn {
         var buffer = [Int8](repeating: 0, count: 32 * 1024)
         var name = ""
         if libkrbn_core_configuration_get_profile_name(i, &buffer, buffer.count) {
-          name = String(cString: buffer)
+          name = String(utf8String: buffer) ?? ""
         }
 
         let profile = Profile(i, name, libkrbn_core_configuration_get_profile_selected(i))
@@ -620,7 +633,7 @@ extension LibKrbn {
     public func selectedProfileName() -> String {
       var buffer = [Int8](repeating: 0, count: 32 * 1024)
       if libkrbn_core_configuration_get_selected_profile_name(&buffer, buffer.count) {
-        return String(cString: buffer)
+        return String(utf8String: buffer) ?? ""
       }
 
       return ""
