@@ -1,10 +1,11 @@
 import Foundation
 
 extension LibKrbn {
+  @MainActor
   final class ConnectedDeviceSetting: Identifiable, Equatable, ObservableObject {
     private var didSetEnabled = false
 
-    var id = UUID()
+    nonisolated let id = UUID()
     var connectedDevice: ConnectedDevice
 
     init(_ connectedDevice: ConnectedDevice) {
@@ -16,154 +17,140 @@ extension LibKrbn {
     public func updateProperties() {
       didSetEnabled = false
 
-      let ignore = libkrbn_core_configuration_get_selected_profile_device_ignore(
-        connectedDevice.libkrbnDeviceIdentifiers)
-      modifyEvents = !ignore
+      connectedDevice.withDeviceIdentifiersCPointer {
+        let ignore = libkrbn_core_configuration_get_selected_profile_device_ignore($0)
+        modifyEvents = !ignore
 
-      manipulateCapsLockLed =
-        libkrbn_core_configuration_get_selected_profile_device_manipulate_caps_lock_led(
-          connectedDevice.libkrbnDeviceIdentifiers)
+        manipulateCapsLockLed =
+          libkrbn_core_configuration_get_selected_profile_device_manipulate_caps_lock_led($0)
 
-      ignoreVendorEvents =
-        libkrbn_core_configuration_get_selected_profile_device_ignore_vendor_events(
-          connectedDevice.libkrbnDeviceIdentifiers)
+        ignoreVendorEvents =
+          libkrbn_core_configuration_get_selected_profile_device_ignore_vendor_events($0)
 
-      treatAsBuiltInKeyboard =
-        libkrbn_core_configuration_get_selected_profile_device_treat_as_built_in_keyboard(
-          connectedDevice.libkrbnDeviceIdentifiers)
+        treatAsBuiltInKeyboard =
+          libkrbn_core_configuration_get_selected_profile_device_treat_as_built_in_keyboard($0)
 
-      disableBuiltInKeyboardIfExists =
-        libkrbn_core_configuration_get_selected_profile_device_disable_built_in_keyboard_if_exists(
-          connectedDevice.libkrbnDeviceIdentifiers)
+        disableBuiltInKeyboardIfExists =
+          libkrbn_core_configuration_get_selected_profile_device_disable_built_in_keyboard_if_exists(
+            $0)
 
-      pointingMotionXYMultiplier =
-        libkrbn_core_configuration_get_selected_profile_device_pointing_motion_xy_multiplier(
-          connectedDevice.libkrbnDeviceIdentifiers)
+        pointingMotionXYMultiplier =
+          libkrbn_core_configuration_get_selected_profile_device_pointing_motion_xy_multiplier($0)
 
-      pointingMotionWheelsMultiplier =
-        libkrbn_core_configuration_get_selected_profile_device_pointing_motion_wheels_multiplier(
-          connectedDevice.libkrbnDeviceIdentifiers)
+        pointingMotionWheelsMultiplier =
+          libkrbn_core_configuration_get_selected_profile_device_pointing_motion_wheels_multiplier(
+            $0)
 
-      //
-      // mouseFlipXXX
-      //
+        //
+        // mouseFlipXXX
+        //
 
-      mouseFlipX =
-        libkrbn_core_configuration_get_selected_profile_device_mouse_flip_x(
-          connectedDevice.libkrbnDeviceIdentifiers)
+        mouseFlipX =
+          libkrbn_core_configuration_get_selected_profile_device_mouse_flip_x($0)
 
-      mouseFlipY =
-        libkrbn_core_configuration_get_selected_profile_device_mouse_flip_y(
-          connectedDevice.libkrbnDeviceIdentifiers)
+        mouseFlipY =
+          libkrbn_core_configuration_get_selected_profile_device_mouse_flip_y($0)
 
-      mouseFlipVerticalWheel =
-        libkrbn_core_configuration_get_selected_profile_device_mouse_flip_vertical_wheel(
-          connectedDevice.libkrbnDeviceIdentifiers)
+        mouseFlipVerticalWheel =
+          libkrbn_core_configuration_get_selected_profile_device_mouse_flip_vertical_wheel($0)
 
-      mouseFlipHorizontalWheel =
-        libkrbn_core_configuration_get_selected_profile_device_mouse_flip_horizontal_wheel(
-          connectedDevice.libkrbnDeviceIdentifiers)
+        mouseFlipHorizontalWheel =
+          libkrbn_core_configuration_get_selected_profile_device_mouse_flip_horizontal_wheel($0)
 
-      //
-      // mouseDiscardXXX
-      //
+        //
+        // mouseDiscardXXX
+        //
 
-      mouseDiscardX =
-        libkrbn_core_configuration_get_selected_profile_device_mouse_discard_x(
-          connectedDevice.libkrbnDeviceIdentifiers)
+        mouseDiscardX =
+          libkrbn_core_configuration_get_selected_profile_device_mouse_discard_x($0)
 
-      mouseDiscardY =
-        libkrbn_core_configuration_get_selected_profile_device_mouse_discard_y(
-          connectedDevice.libkrbnDeviceIdentifiers)
+        mouseDiscardY =
+          libkrbn_core_configuration_get_selected_profile_device_mouse_discard_y($0)
 
-      mouseDiscardVerticalWheel =
-        libkrbn_core_configuration_get_selected_profile_device_mouse_discard_vertical_wheel(
-          connectedDevice.libkrbnDeviceIdentifiers)
+        mouseDiscardVerticalWheel =
+          libkrbn_core_configuration_get_selected_profile_device_mouse_discard_vertical_wheel($0)
 
-      mouseDiscardHorizontalWheel =
-        libkrbn_core_configuration_get_selected_profile_device_mouse_discard_horizontal_wheel(
-          connectedDevice.libkrbnDeviceIdentifiers)
+        mouseDiscardHorizontalWheel =
+          libkrbn_core_configuration_get_selected_profile_device_mouse_discard_horizontal_wheel($0)
 
-      //
-      // mouseSwapXXX
-      //
+        //
+        // mouseSwapXXX
+        //
 
-      mouseSwapXY =
-        libkrbn_core_configuration_get_selected_profile_device_mouse_swap_xy(
-          connectedDevice.libkrbnDeviceIdentifiers)
+        mouseSwapXY =
+          libkrbn_core_configuration_get_selected_profile_device_mouse_swap_xy($0)
 
-      mouseSwapWheels =
-        libkrbn_core_configuration_get_selected_profile_device_mouse_swap_wheels(
-          connectedDevice.libkrbnDeviceIdentifiers)
+        mouseSwapWheels =
+          libkrbn_core_configuration_get_selected_profile_device_mouse_swap_wheels($0)
 
-      //
-      // gamePadXXX
-      //
+        //
+        // gamePadXXX
+        //
 
-      gamePadSwapSticks =
-        libkrbn_core_configuration_get_selected_profile_device_game_pad_swap_sticks(
-          connectedDevice.libkrbnDeviceIdentifiers)
+        gamePadSwapSticks =
+          libkrbn_core_configuration_get_selected_profile_device_game_pad_swap_sticks($0)
 
-      gamePadXYStickDeadzone =
-        libkrbn_core_configuration_get_selected_profile_device_game_pad_xy_stick_deadzone(
-          connectedDevice.libkrbnDeviceIdentifiers)
+        gamePadXYStickDeadzone =
+          libkrbn_core_configuration_get_selected_profile_device_game_pad_xy_stick_deadzone($0)
 
-      gamePadXYStickDeltaMagnitudeDetectionThreshold =
-        libkrbn_core_configuration_get_selected_profile_device_game_pad_xy_stick_delta_magnitude_detection_threshold(
-          connectedDevice.libkrbnDeviceIdentifiers)
+        gamePadXYStickDeltaMagnitudeDetectionThreshold =
+          libkrbn_core_configuration_get_selected_profile_device_game_pad_xy_stick_delta_magnitude_detection_threshold(
+            $0)
 
-      gamePadXYStickContinuedMovementAbsoluteMagnitudeThreshold =
-        libkrbn_core_configuration_get_selected_profile_device_game_pad_xy_stick_continued_movement_absolute_magnitude_threshold(
-          connectedDevice.libkrbnDeviceIdentifiers)
+        gamePadXYStickContinuedMovementAbsoluteMagnitudeThreshold =
+          libkrbn_core_configuration_get_selected_profile_device_game_pad_xy_stick_continued_movement_absolute_magnitude_threshold(
+            $0)
 
-      gamePadXYStickContinuedMovementIntervalMilliseconds = Int(
-        libkrbn_core_configuration_get_selected_profile_device_game_pad_xy_stick_continued_movement_interval_milliseconds(
-          connectedDevice.libkrbnDeviceIdentifiers))
+        gamePadXYStickContinuedMovementIntervalMilliseconds = Int(
+          libkrbn_core_configuration_get_selected_profile_device_game_pad_xy_stick_continued_movement_interval_milliseconds(
+            $0)
+        )
 
-      gamePadWheelsStickDeadzone =
-        libkrbn_core_configuration_get_selected_profile_device_game_pad_wheels_stick_deadzone(
-          connectedDevice.libkrbnDeviceIdentifiers)
+        gamePadWheelsStickDeadzone =
+          libkrbn_core_configuration_get_selected_profile_device_game_pad_wheels_stick_deadzone($0)
 
-      gamePadWheelsStickDeltaMagnitudeDetectionThreshold =
-        libkrbn_core_configuration_get_selected_profile_device_game_pad_wheels_stick_delta_magnitude_detection_threshold(
-          connectedDevice.libkrbnDeviceIdentifiers)
+        gamePadWheelsStickDeltaMagnitudeDetectionThreshold =
+          libkrbn_core_configuration_get_selected_profile_device_game_pad_wheels_stick_delta_magnitude_detection_threshold(
+            $0)
 
-      gamePadWheelsStickContinuedMovementAbsoluteMagnitudeThreshold =
-        libkrbn_core_configuration_get_selected_profile_device_game_pad_wheels_stick_continued_movement_absolute_magnitude_threshold(
-          connectedDevice.libkrbnDeviceIdentifiers)
+        gamePadWheelsStickContinuedMovementAbsoluteMagnitudeThreshold =
+          libkrbn_core_configuration_get_selected_profile_device_game_pad_wheels_stick_continued_movement_absolute_magnitude_threshold(
+            $0)
 
-      gamePadWheelsStickContinuedMovementIntervalMilliseconds = Int(
-        libkrbn_core_configuration_get_selected_profile_device_game_pad_wheels_stick_continued_movement_interval_milliseconds(
-          connectedDevice.libkrbnDeviceIdentifiers))
+        gamePadWheelsStickContinuedMovementIntervalMilliseconds = Int(
+          libkrbn_core_configuration_get_selected_profile_device_game_pad_wheels_stick_continued_movement_interval_milliseconds(
+            $0)
+        )
 
-      var buffer = [Int8](repeating: 0, count: 16384)
+        var buffer = [CChar](repeating: 0, count: 16384)
 
-      if libkrbn_core_configuration_get_selected_profile_device_game_pad_stick_x_formula(
-        connectedDevice.libkrbnDeviceIdentifiers, &buffer, buffer.count)
-      {
-        gamePadStickXFormula = String(cString: buffer).trimmingCharacters(
-          in: .whitespacesAndNewlines)
-      }
+        if libkrbn_core_configuration_get_selected_profile_device_game_pad_stick_x_formula(
+          $0, &buffer, buffer.count)
+        {
+          gamePadStickXFormula =
+            String(utf8String: buffer)?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+        }
 
-      if libkrbn_core_configuration_get_selected_profile_device_game_pad_stick_y_formula(
-        connectedDevice.libkrbnDeviceIdentifiers, &buffer, buffer.count)
-      {
-        gamePadStickYFormula = String(cString: buffer).trimmingCharacters(
-          in: .whitespacesAndNewlines)
-      }
+        if libkrbn_core_configuration_get_selected_profile_device_game_pad_stick_y_formula(
+          $0, &buffer, buffer.count)
+        {
+          gamePadStickYFormula =
+            String(utf8String: buffer)?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+        }
 
-      if libkrbn_core_configuration_get_selected_profile_device_game_pad_stick_vertical_wheel_formula(
-        connectedDevice.libkrbnDeviceIdentifiers, &buffer, buffer.count)
-      {
-        gamePadStickVerticalWheelFormula = String(cString: buffer).trimmingCharacters(
-          in: .whitespacesAndNewlines)
-      }
+        if libkrbn_core_configuration_get_selected_profile_device_game_pad_stick_vertical_wheel_formula(
+          $0, &buffer, buffer.count)
+        {
+          gamePadStickVerticalWheelFormula =
+            String(utf8String: buffer)?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+        }
 
-      if libkrbn_core_configuration_get_selected_profile_device_game_pad_stick_horizontal_wheel_formula(
-        connectedDevice.libkrbnDeviceIdentifiers, &buffer, buffer.count)
-      {
-        gamePadStickHorizontalWheelFormula = String(cString: buffer).trimmingCharacters(
-          in: .whitespacesAndNewlines)
+        if libkrbn_core_configuration_get_selected_profile_device_game_pad_stick_horizontal_wheel_formula(
+          $0, &buffer, buffer.count)
+        {
+          gamePadStickHorizontalWheelFormula =
+            String(utf8String: buffer)?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+        }
       }
 
       simpleModifications = LibKrbn.Settings.shared.makeSimpleModifications(connectedDevice)
@@ -175,8 +162,9 @@ extension LibKrbn {
     @Published var modifyEvents: Bool = false {
       didSet {
         if didSetEnabled {
-          libkrbn_core_configuration_set_selected_profile_device_ignore(
-            connectedDevice.libkrbnDeviceIdentifiers, !modifyEvents)
+          connectedDevice.withDeviceIdentifiersCPointer {
+            libkrbn_core_configuration_set_selected_profile_device_ignore($0, !modifyEvents)
+          }
 
           Settings.shared.save()
         }
@@ -186,8 +174,10 @@ extension LibKrbn {
     @Published var manipulateCapsLockLed: Bool = false {
       didSet {
         if didSetEnabled {
-          libkrbn_core_configuration_set_selected_profile_device_manipulate_caps_lock_led(
-            connectedDevice.libkrbnDeviceIdentifiers, manipulateCapsLockLed)
+          connectedDevice.withDeviceIdentifiersCPointer {
+            libkrbn_core_configuration_set_selected_profile_device_manipulate_caps_lock_led(
+              $0, manipulateCapsLockLed)
+          }
 
           Settings.shared.save()
         }
@@ -197,8 +187,10 @@ extension LibKrbn {
     @Published var ignoreVendorEvents: Bool = false {
       didSet {
         if didSetEnabled {
-          libkrbn_core_configuration_set_selected_profile_device_ignore_vendor_events(
-            connectedDevice.libkrbnDeviceIdentifiers, ignoreVendorEvents)
+          connectedDevice.withDeviceIdentifiersCPointer {
+            libkrbn_core_configuration_set_selected_profile_device_ignore_vendor_events(
+              $0, ignoreVendorEvents)
+          }
 
           Settings.shared.save()
         }
@@ -208,8 +200,10 @@ extension LibKrbn {
     @Published var treatAsBuiltInKeyboard: Bool = false {
       didSet {
         if didSetEnabled {
-          libkrbn_core_configuration_set_selected_profile_device_treat_as_built_in_keyboard(
-            connectedDevice.libkrbnDeviceIdentifiers, treatAsBuiltInKeyboard)
+          connectedDevice.withDeviceIdentifiersCPointer {
+            libkrbn_core_configuration_set_selected_profile_device_treat_as_built_in_keyboard(
+              $0, treatAsBuiltInKeyboard)
+          }
 
           Settings.shared.save()
         }
@@ -219,8 +213,10 @@ extension LibKrbn {
     @Published var disableBuiltInKeyboardIfExists: Bool = false {
       didSet {
         if didSetEnabled {
-          libkrbn_core_configuration_set_selected_profile_device_disable_built_in_keyboard_if_exists(
-            connectedDevice.libkrbnDeviceIdentifiers, disableBuiltInKeyboardIfExists)
+          connectedDevice.withDeviceIdentifiersCPointer {
+            libkrbn_core_configuration_set_selected_profile_device_disable_built_in_keyboard_if_exists(
+              $0, disableBuiltInKeyboardIfExists)
+          }
 
           Settings.shared.save()
         }
@@ -230,8 +226,10 @@ extension LibKrbn {
     @Published var pointingMotionXYMultiplier: Double = 1.0 {
       didSet {
         if didSetEnabled {
-          libkrbn_core_configuration_set_selected_profile_device_pointing_motion_xy_multiplier(
-            connectedDevice.libkrbnDeviceIdentifiers, pointingMotionXYMultiplier)
+          connectedDevice.withDeviceIdentifiersCPointer {
+            libkrbn_core_configuration_set_selected_profile_device_pointing_motion_xy_multiplier(
+              $0, pointingMotionXYMultiplier)
+          }
 
           Settings.shared.save()
         }
@@ -241,8 +239,10 @@ extension LibKrbn {
     @Published var pointingMotionWheelsMultiplier: Double = 1.0 {
       didSet {
         if didSetEnabled {
-          libkrbn_core_configuration_set_selected_profile_device_pointing_motion_wheels_multiplier(
-            connectedDevice.libkrbnDeviceIdentifiers, pointingMotionWheelsMultiplier)
+          connectedDevice.withDeviceIdentifiersCPointer {
+            libkrbn_core_configuration_set_selected_profile_device_pointing_motion_wheels_multiplier(
+              $0, pointingMotionWheelsMultiplier)
+          }
 
           Settings.shared.save()
         }
@@ -252,8 +252,9 @@ extension LibKrbn {
     @Published var mouseFlipX: Bool = false {
       didSet {
         if didSetEnabled {
-          libkrbn_core_configuration_set_selected_profile_device_mouse_flip_x(
-            connectedDevice.libkrbnDeviceIdentifiers, mouseFlipX)
+          connectedDevice.withDeviceIdentifiersCPointer {
+            libkrbn_core_configuration_set_selected_profile_device_mouse_flip_x($0, mouseFlipX)
+          }
 
           Settings.shared.save()
         }
@@ -263,8 +264,9 @@ extension LibKrbn {
     @Published var mouseFlipY: Bool = false {
       didSet {
         if didSetEnabled {
-          libkrbn_core_configuration_set_selected_profile_device_mouse_flip_y(
-            connectedDevice.libkrbnDeviceIdentifiers, mouseFlipY)
+          connectedDevice.withDeviceIdentifiersCPointer {
+            libkrbn_core_configuration_set_selected_profile_device_mouse_flip_y($0, mouseFlipY)
+          }
 
           Settings.shared.save()
         }
@@ -274,8 +276,10 @@ extension LibKrbn {
     @Published var mouseFlipVerticalWheel: Bool = false {
       didSet {
         if didSetEnabled {
-          libkrbn_core_configuration_set_selected_profile_device_mouse_flip_vertical_wheel(
-            connectedDevice.libkrbnDeviceIdentifiers, mouseFlipVerticalWheel)
+          connectedDevice.withDeviceIdentifiersCPointer {
+            libkrbn_core_configuration_set_selected_profile_device_mouse_flip_vertical_wheel(
+              $0, mouseFlipVerticalWheel)
+          }
 
           Settings.shared.save()
         }
@@ -284,8 +288,10 @@ extension LibKrbn {
     @Published var mouseFlipHorizontalWheel: Bool = false {
       didSet {
         if didSetEnabled {
-          libkrbn_core_configuration_set_selected_profile_device_mouse_flip_horizontal_wheel(
-            connectedDevice.libkrbnDeviceIdentifiers, mouseFlipHorizontalWheel)
+          connectedDevice.withDeviceIdentifiersCPointer {
+            libkrbn_core_configuration_set_selected_profile_device_mouse_flip_horizontal_wheel(
+              $0, mouseFlipHorizontalWheel)
+          }
 
           Settings.shared.save()
         }
@@ -295,8 +301,10 @@ extension LibKrbn {
     @Published var mouseDiscardX: Bool = false {
       didSet {
         if didSetEnabled {
-          libkrbn_core_configuration_set_selected_profile_device_mouse_discard_x(
-            connectedDevice.libkrbnDeviceIdentifiers, mouseDiscardX)
+          connectedDevice.withDeviceIdentifiersCPointer {
+            libkrbn_core_configuration_set_selected_profile_device_mouse_discard_x(
+              $0, mouseDiscardX)
+          }
 
           Settings.shared.save()
         }
@@ -306,8 +314,10 @@ extension LibKrbn {
     @Published var mouseDiscardY: Bool = false {
       didSet {
         if didSetEnabled {
-          libkrbn_core_configuration_set_selected_profile_device_mouse_discard_y(
-            connectedDevice.libkrbnDeviceIdentifiers, mouseDiscardY)
+          connectedDevice.withDeviceIdentifiersCPointer {
+            libkrbn_core_configuration_set_selected_profile_device_mouse_discard_y(
+              $0, mouseDiscardY)
+          }
 
           Settings.shared.save()
         }
@@ -317,8 +327,10 @@ extension LibKrbn {
     @Published var mouseDiscardVerticalWheel: Bool = false {
       didSet {
         if didSetEnabled {
-          libkrbn_core_configuration_set_selected_profile_device_mouse_discard_vertical_wheel(
-            connectedDevice.libkrbnDeviceIdentifiers, mouseDiscardVerticalWheel)
+          connectedDevice.withDeviceIdentifiersCPointer {
+            libkrbn_core_configuration_set_selected_profile_device_mouse_discard_vertical_wheel(
+              $0, mouseDiscardVerticalWheel)
+          }
 
           Settings.shared.save()
         }
@@ -327,8 +339,10 @@ extension LibKrbn {
     @Published var mouseDiscardHorizontalWheel: Bool = false {
       didSet {
         if didSetEnabled {
-          libkrbn_core_configuration_set_selected_profile_device_mouse_discard_horizontal_wheel(
-            connectedDevice.libkrbnDeviceIdentifiers, mouseDiscardHorizontalWheel)
+          connectedDevice.withDeviceIdentifiersCPointer {
+            libkrbn_core_configuration_set_selected_profile_device_mouse_discard_horizontal_wheel(
+              $0, mouseDiscardHorizontalWheel)
+          }
 
           Settings.shared.save()
         }
@@ -338,8 +352,9 @@ extension LibKrbn {
     @Published var mouseSwapXY: Bool = false {
       didSet {
         if didSetEnabled {
-          libkrbn_core_configuration_set_selected_profile_device_mouse_swap_xy(
-            connectedDevice.libkrbnDeviceIdentifiers, mouseSwapXY)
+          connectedDevice.withDeviceIdentifiersCPointer {
+            libkrbn_core_configuration_set_selected_profile_device_mouse_swap_xy($0, mouseSwapXY)
+          }
 
           Settings.shared.save()
         }
@@ -349,8 +364,10 @@ extension LibKrbn {
     @Published var mouseSwapWheels: Bool = false {
       didSet {
         if didSetEnabled {
-          libkrbn_core_configuration_set_selected_profile_device_mouse_swap_wheels(
-            connectedDevice.libkrbnDeviceIdentifiers, mouseSwapWheels)
+          connectedDevice.withDeviceIdentifiersCPointer {
+            libkrbn_core_configuration_set_selected_profile_device_mouse_swap_wheels(
+              $0, mouseSwapWheels)
+          }
 
           Settings.shared.save()
         }
@@ -360,8 +377,10 @@ extension LibKrbn {
     @Published var gamePadSwapSticks: Bool = false {
       didSet {
         if didSetEnabled {
-          libkrbn_core_configuration_set_selected_profile_device_game_pad_swap_sticks(
-            connectedDevice.libkrbnDeviceIdentifiers, gamePadSwapSticks)
+          connectedDevice.withDeviceIdentifiersCPointer {
+            libkrbn_core_configuration_set_selected_profile_device_game_pad_swap_sticks(
+              $0, gamePadSwapSticks)
+          }
 
           Settings.shared.save()
         }
@@ -371,9 +390,10 @@ extension LibKrbn {
     @Published var gamePadXYStickDeadzone: Double = 0.0 {
       didSet {
         if didSetEnabled {
-          libkrbn_core_configuration_set_selected_profile_device_game_pad_xy_stick_deadzone(
-            connectedDevice.libkrbnDeviceIdentifiers,
-            gamePadXYStickDeadzone)
+          connectedDevice.withDeviceIdentifiersCPointer {
+            libkrbn_core_configuration_set_selected_profile_device_game_pad_xy_stick_deadzone(
+              $0, gamePadXYStickDeadzone)
+          }
 
           Settings.shared.save()
         }
@@ -383,9 +403,10 @@ extension LibKrbn {
     @Published var gamePadXYStickDeltaMagnitudeDetectionThreshold: Double = 0.0 {
       didSet {
         if didSetEnabled {
-          libkrbn_core_configuration_set_selected_profile_device_game_pad_xy_stick_delta_magnitude_detection_threshold(
-            connectedDevice.libkrbnDeviceIdentifiers,
-            gamePadXYStickDeltaMagnitudeDetectionThreshold)
+          connectedDevice.withDeviceIdentifiersCPointer {
+            libkrbn_core_configuration_set_selected_profile_device_game_pad_xy_stick_delta_magnitude_detection_threshold(
+              $0, gamePadXYStickDeltaMagnitudeDetectionThreshold)
+          }
 
           Settings.shared.save()
         }
@@ -395,9 +416,10 @@ extension LibKrbn {
     @Published var gamePadXYStickContinuedMovementAbsoluteMagnitudeThreshold: Double = 0.0 {
       didSet {
         if didSetEnabled {
-          libkrbn_core_configuration_set_selected_profile_device_game_pad_xy_stick_continued_movement_absolute_magnitude_threshold(
-            connectedDevice.libkrbnDeviceIdentifiers,
-            gamePadXYStickContinuedMovementAbsoluteMagnitudeThreshold)
+          connectedDevice.withDeviceIdentifiersCPointer {
+            libkrbn_core_configuration_set_selected_profile_device_game_pad_xy_stick_continued_movement_absolute_magnitude_threshold(
+              $0, gamePadXYStickContinuedMovementAbsoluteMagnitudeThreshold)
+          }
 
           Settings.shared.save()
         }
@@ -407,9 +429,10 @@ extension LibKrbn {
     @Published var gamePadXYStickContinuedMovementIntervalMilliseconds: Int = 0 {
       didSet {
         if didSetEnabled {
-          libkrbn_core_configuration_set_selected_profile_device_game_pad_xy_stick_continued_movement_interval_milliseconds(
-            connectedDevice.libkrbnDeviceIdentifiers,
-            Int32(gamePadXYStickContinuedMovementIntervalMilliseconds))
+          connectedDevice.withDeviceIdentifiersCPointer {
+            libkrbn_core_configuration_set_selected_profile_device_game_pad_xy_stick_continued_movement_interval_milliseconds(
+              $0, Int32(gamePadXYStickContinuedMovementIntervalMilliseconds))
+          }
 
           Settings.shared.save()
         }
@@ -419,9 +442,10 @@ extension LibKrbn {
     @Published var gamePadWheelsStickDeadzone: Double = 0.0 {
       didSet {
         if didSetEnabled {
-          libkrbn_core_configuration_set_selected_profile_device_game_pad_wheels_stick_deadzone(
-            connectedDevice.libkrbnDeviceIdentifiers,
-            gamePadWheelsStickDeadzone)
+          connectedDevice.withDeviceIdentifiersCPointer {
+            libkrbn_core_configuration_set_selected_profile_device_game_pad_wheels_stick_deadzone(
+              $0, gamePadWheelsStickDeadzone)
+          }
 
           Settings.shared.save()
         }
@@ -431,9 +455,10 @@ extension LibKrbn {
     @Published var gamePadWheelsStickDeltaMagnitudeDetectionThreshold: Double = 0.0 {
       didSet {
         if didSetEnabled {
-          libkrbn_core_configuration_set_selected_profile_device_game_pad_wheels_stick_delta_magnitude_detection_threshold(
-            connectedDevice.libkrbnDeviceIdentifiers,
-            gamePadWheelsStickDeltaMagnitudeDetectionThreshold)
+          connectedDevice.withDeviceIdentifiersCPointer {
+            libkrbn_core_configuration_set_selected_profile_device_game_pad_wheels_stick_delta_magnitude_detection_threshold(
+              $0, gamePadWheelsStickDeltaMagnitudeDetectionThreshold)
+          }
 
           Settings.shared.save()
         }
@@ -443,9 +468,10 @@ extension LibKrbn {
     @Published var gamePadWheelsStickContinuedMovementAbsoluteMagnitudeThreshold: Double = 0.0 {
       didSet {
         if didSetEnabled {
-          libkrbn_core_configuration_set_selected_profile_device_game_pad_wheels_stick_continued_movement_absolute_magnitude_threshold(
-            connectedDevice.libkrbnDeviceIdentifiers,
-            gamePadWheelsStickContinuedMovementAbsoluteMagnitudeThreshold)
+          connectedDevice.withDeviceIdentifiersCPointer {
+            libkrbn_core_configuration_set_selected_profile_device_game_pad_wheels_stick_continued_movement_absolute_magnitude_threshold(
+              $0, gamePadWheelsStickContinuedMovementAbsoluteMagnitudeThreshold)
+          }
 
           Settings.shared.save()
         }
@@ -455,9 +481,10 @@ extension LibKrbn {
     @Published var gamePadWheelsStickContinuedMovementIntervalMilliseconds: Int = 0 {
       didSet {
         if didSetEnabled {
-          libkrbn_core_configuration_set_selected_profile_device_game_pad_wheels_stick_continued_movement_interval_milliseconds(
-            connectedDevice.libkrbnDeviceIdentifiers,
-            Int32(gamePadWheelsStickContinuedMovementIntervalMilliseconds))
+          connectedDevice.withDeviceIdentifiersCPointer {
+            libkrbn_core_configuration_set_selected_profile_device_game_pad_wheels_stick_continued_movement_interval_milliseconds(
+              $0, Int32(gamePadWheelsStickContinuedMovementIntervalMilliseconds))
+          }
 
           Settings.shared.save()
         }
@@ -469,22 +496,24 @@ extension LibKrbn {
     @Published var gamePadStickXFormula = "" {
       didSet {
         if didSetEnabled {
-          if libkrbn_core_configuration_set_selected_profile_device_game_pad_stick_x_formula(
-            connectedDevice.libkrbnDeviceIdentifiers,
-            gamePadStickXFormula.cString(using: .utf8))
-          {
-            gamePadStickXFormulaError = false
-            Settings.shared.save()
-          } else {
-            gamePadStickXFormulaError = true
+          connectedDevice.withDeviceIdentifiersCPointer {
+            if libkrbn_core_configuration_set_selected_profile_device_game_pad_stick_x_formula(
+              $0, gamePadStickXFormula.cString(using: .utf8))
+            {
+              gamePadStickXFormulaError = false
+              Settings.shared.save()
+            } else {
+              gamePadStickXFormulaError = true
+            }
           }
         }
       }
     }
 
     public func resetGamePadStickXFormula() {
-      libkrbn_core_configuration_reset_selected_profile_device_game_pad_stick_x_formula(
-        connectedDevice.libkrbnDeviceIdentifiers)
+      connectedDevice.withDeviceIdentifiersCPointer {
+        libkrbn_core_configuration_reset_selected_profile_device_game_pad_stick_x_formula($0)
+      }
 
       Settings.shared.save()
 
@@ -496,22 +525,24 @@ extension LibKrbn {
     @Published var gamePadStickYFormula = "" {
       didSet {
         if didSetEnabled {
-          if libkrbn_core_configuration_set_selected_profile_device_game_pad_stick_y_formula(
-            connectedDevice.libkrbnDeviceIdentifiers,
-            gamePadStickYFormula.cString(using: .utf8))
-          {
-            gamePadStickYFormulaError = false
-            Settings.shared.save()
-          } else {
-            gamePadStickYFormulaError = true
+          connectedDevice.withDeviceIdentifiersCPointer {
+            if libkrbn_core_configuration_set_selected_profile_device_game_pad_stick_y_formula(
+              $0, gamePadStickYFormula.cString(using: .utf8))
+            {
+              gamePadStickYFormulaError = false
+              Settings.shared.save()
+            } else {
+              gamePadStickYFormulaError = true
+            }
           }
         }
       }
     }
 
     public func resetGamePadStickYFormula() {
-      libkrbn_core_configuration_reset_selected_profile_device_game_pad_stick_y_formula(
-        connectedDevice.libkrbnDeviceIdentifiers)
+      connectedDevice.withDeviceIdentifiersCPointer {
+        libkrbn_core_configuration_reset_selected_profile_device_game_pad_stick_y_formula($0)
+      }
 
       Settings.shared.save()
 
@@ -523,22 +554,25 @@ extension LibKrbn {
     @Published var gamePadStickVerticalWheelFormula = "" {
       didSet {
         if didSetEnabled {
-          if libkrbn_core_configuration_set_selected_profile_device_game_pad_stick_vertical_wheel_formula(
-            connectedDevice.libkrbnDeviceIdentifiers,
-            gamePadStickVerticalWheelFormula.cString(using: .utf8))
-          {
-            gamePadStickVerticalWheelFormulaError = false
-            Settings.shared.save()
-          } else {
-            gamePadStickVerticalWheelFormulaError = true
+          connectedDevice.withDeviceIdentifiersCPointer {
+            if libkrbn_core_configuration_set_selected_profile_device_game_pad_stick_vertical_wheel_formula(
+              $0, gamePadStickVerticalWheelFormula.cString(using: .utf8))
+            {
+              gamePadStickVerticalWheelFormulaError = false
+              Settings.shared.save()
+            } else {
+              gamePadStickVerticalWheelFormulaError = true
+            }
           }
         }
       }
     }
 
     public func resetGamePadStickVerticalWheelFormula() {
-      libkrbn_core_configuration_reset_selected_profile_device_game_pad_stick_vertical_wheel_formula(
-        connectedDevice.libkrbnDeviceIdentifiers)
+      connectedDevice.withDeviceIdentifiersCPointer {
+        libkrbn_core_configuration_reset_selected_profile_device_game_pad_stick_vertical_wheel_formula(
+          $0)
+      }
 
       Settings.shared.save()
 
@@ -550,22 +584,25 @@ extension LibKrbn {
     @Published var gamePadStickHorizontalWheelFormula = "" {
       didSet {
         if didSetEnabled {
-          if libkrbn_core_configuration_set_selected_profile_device_game_pad_stick_horizontal_wheel_formula(
-            connectedDevice.libkrbnDeviceIdentifiers,
-            gamePadStickHorizontalWheelFormula.cString(using: .utf8))
-          {
-            gamePadStickHorizontalWheelFormulaError = false
-            Settings.shared.save()
-          } else {
-            gamePadStickHorizontalWheelFormulaError = true
+          connectedDevice.withDeviceIdentifiersCPointer {
+            if libkrbn_core_configuration_set_selected_profile_device_game_pad_stick_horizontal_wheel_formula(
+              $0, gamePadStickHorizontalWheelFormula.cString(using: .utf8))
+            {
+              gamePadStickHorizontalWheelFormulaError = false
+              Settings.shared.save()
+            } else {
+              gamePadStickHorizontalWheelFormulaError = true
+            }
           }
         }
       }
     }
 
     public func resetGamePadStickHorizontalWheelFormula() {
-      libkrbn_core_configuration_reset_selected_profile_device_game_pad_stick_horizontal_wheel_formula(
-        connectedDevice.libkrbnDeviceIdentifiers)
+      connectedDevice.withDeviceIdentifiersCPointer {
+        libkrbn_core_configuration_reset_selected_profile_device_game_pad_stick_horizontal_wheel_formula(
+          $0)
+      }
 
       Settings.shared.save()
 
@@ -575,7 +612,9 @@ extension LibKrbn {
     @Published var simpleModifications: [SimpleModification] = []
     @Published var fnFunctionKeys: [SimpleModification] = []
 
-    public static func == (lhs: ConnectedDeviceSetting, rhs: ConnectedDeviceSetting) -> Bool {
+    nonisolated public static func == (lhs: ConnectedDeviceSetting, rhs: ConnectedDeviceSetting)
+      -> Bool
+    {
       lhs.id == rhs.id
     }
   }

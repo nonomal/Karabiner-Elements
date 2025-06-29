@@ -1,7 +1,10 @@
 # Changelog
 
-## Beta
+## Karabiner-Elements 15.4.0
 
+-   [📦 Download](https://github.com/pqrs-org/Karabiner-Elements/releases/download/v15.4.0/Karabiner-Elements-15.4.0.dmg)
+-   📅 Release date
+    -   Jun 29, 2025
 -   🐛 Bug Fixes
     -   Fixed an overflow issue with the mouse key movements.
     -   Fixed an issue that the fn key is unintentionally tapped when use the media keys if "Use all F1, F2, etc. keys as standard function keys" is enabled.
@@ -13,8 +16,10 @@
     -   Added `conditions` option into `to`.
     -   Added `Filter useless events from specific devices` option in Expert tab.
     -   Added `Reorder same timestamp input events to prioritize modifiers` in Expert tab.
+    -   Added a toggle to EventViewer for monitoring events.
 -   ⚡️ Improvements
     -   Migrated to the SwiftUI life cycle.
+    -   Migrated to Swift 6.
     -   Improved `to_delayed_action` behavior to use the modifier flags of the time the key is pressed, when sending events.
     -   Supported the following keys:
         -   consumer::ac_zoom_out

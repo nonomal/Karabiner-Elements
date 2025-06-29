@@ -5,30 +5,33 @@ private struct NotificationMessageJson: Codable {
 }
 
 private func callback() {
-  var body = ""
+  Task { @MainActor in
+    var body = ""
 
-  if let jsonData = try? Data(
-    contentsOf: URL(
-      fileURLWithPath: NotificationWindowManager.shared.notificationMessageJsonFilePath))
-  {
-    let decoder = JSONDecoder()
-    decoder.keyDecodingStrategy = .convertFromSnakeCase
-    if let message = try? decoder.decode(NotificationMessageJson.self, from: jsonData) {
-      body = message.body ?? ""
-      body = body.trimmingCharacters(in: .whitespacesAndNewlines)
+    if let jsonData = try? Data(
+      contentsOf: URL(
+        fileURLWithPath: NotificationWindowManager.shared.notificationMessageJsonFilePath))
+    {
+      let decoder = JSONDecoder()
+      decoder.keyDecodingStrategy = .convertFromSnakeCase
+      if let message = try? decoder.decode(NotificationMessageJson.self, from: jsonData) {
+        body = message.body ?? ""
+        body = body.trimmingCharacters(in: .whitespacesAndNewlines)
+      }
     }
-  }
 
-  Task { @MainActor [body] in
     NotificationMessage.shared.body = body
     NotificationWindowManager.shared.updateWindowsVisibility()
   }
 }
 
+@MainActor
 public class NotificationWindowManager: NSObject {
   static let shared = NotificationWindowManager()
 
   let notificationMessageJsonFilePath = LibKrbn.notificationMessageJsonFilePath()
+
+  private var notificationsTask: Task<Void, Never>?
 
   private struct ScreenWindow {
     var mainWindow: NSWindow
@@ -40,16 +43,20 @@ public class NotificationWindowManager: NSObject {
   override public init() {
     super.init()
 
-    NotificationCenter.default.addObserver(
-      forName: NSApplication.didChangeScreenParametersNotification,
-      object: nil,
-      queue: .main
-    ) { [weak self] _ in
-      guard let self = self else { return }
-
-      self.updateWindows()
+    notificationsTask = Task {
+      await withTaskGroup(of: Void.self) { group in
+        group.addTask {
+          for await _ in NotificationCenter.default.notifications(
+            named: NSApplication.didChangeScreenParametersNotification
+          ) {
+            await self.updateWindows()
+          }
+        }
+      }
     }
   }
+
+  deinit { notificationsTask?.cancel() }
 
   // We register the callback in the `start` method rather than in `init`.
   // If libkrbn_register_*_callback is called within init, there is a risk that `init` could be invoked again from the callback through `shared` before the initial `init` completes.

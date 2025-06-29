@@ -1,9 +1,9 @@
 import SwiftUI
 
+@MainActor
 final class UserSettings: ObservableObject {
   static let shared = UserSettings()
 
-  @AppStorage("kHideIconInDock") var hideIconInDock = false
   @AppStorage("kRelaunchAfterWakeUpFromSleep") var relaunchAfterWakeUpFromSleep = true
   @AppStorage("kRelaunchWait") var relaunchWait = 3
   @AppStorage("kIgnoredAreaTop") var ignoredAreaTop = 0

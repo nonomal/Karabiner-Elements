@@ -27,20 +27,6 @@ struct MiscView: View {
             .padding()
             .foregroundColor(Color.infoForeground)
             .background(Color.infoBackground)
-
-            HStack {
-              Button(
-                action: {
-                  libkrbn_launch_multitouch_extension()
-                },
-                label: {
-                  Label("Open Multitouch Extension Settings", systemImage: "arrow.up.forward.app")
-                }
-              )
-              .disabled(!settings.enableMultitouchExtension)
-
-              Spacer()
-            }
           }
           .padding()
         }
@@ -52,7 +38,7 @@ struct MiscView: View {
                 action: {
                   var buffer = [Int8](repeating: 0, count: 32 * 1024)
                   libkrbn_get_user_configuration_directory(&buffer, buffer.count)
-                  let path = String(cString: buffer)
+                  guard let path = String(utf8String: buffer) else { return }
 
                   let url = URL(fileURLWithPath: path, isDirectory: true)
                   NSWorkspace.shared.open(url)

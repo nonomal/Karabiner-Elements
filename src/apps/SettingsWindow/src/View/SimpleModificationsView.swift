@@ -6,17 +6,12 @@ struct SimpleModificationsView: View {
 
   var body: some View {
     VStack(alignment: .leading, spacing: 12.0) {
-      HStack(alignment: .top, spacing: 12.0) {
+      HSplitView {
         DeviceSelectorView(selectedDevice: $contentViewStates.simpleModificationsViewSelectedDevice)
+          .frame(minWidth: 250, maxWidth: 250)
 
-        VStack {
-          SimpleModificationView(
-            selectedDevice: contentViewStates.simpleModificationsViewSelectedDevice)
-
-          Spacer()
-        }
-
-        Spacer()
+        SimpleModificationView(
+          selectedDevice: contentViewStates.simpleModificationsViewSelectedDevice)
       }
     }
     .padding()

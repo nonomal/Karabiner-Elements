@@ -61,6 +61,8 @@ struct ContentMainView: View {
   @ObservedObject private var contentViewStates = ContentViewStates.shared
   @ObservedObject private var settings = LibKrbn.Settings.shared
 
+  @State private var selectedSidebarItem: SidebarItem = .simpleModifications
+
   private let padding = 6.0
 
   struct SidebarSection {
@@ -76,7 +78,7 @@ struct ContentMainView: View {
         .functionKeys,
         .complexModifications,
         .complexModificationsAdvanced,
-      ],
+      ]
     ),
     SidebarSection(
       title: "Configurations",
@@ -93,7 +95,7 @@ struct ContentMainView: View {
         .update,
         .misc,
         .uninstall,
-      ],
+      ]
     ),
     SidebarSection(
       title: "Tools",
@@ -108,7 +110,7 @@ struct ContentMainView: View {
   var body: some View {
     NavigationSplitView(
       sidebar: {
-        List(selection: $contentViewStates.navigationSelection) {
+        List(selection: $selectedSidebarItem) {
           ForEach(sections.indices, id: \.self) { section in
             Section {
               ForEach(sections[section].items) { item in
@@ -120,6 +122,19 @@ struct ContentMainView: View {
             }
           }
         }
+        .onAppear {
+          selectedSidebarItem = contentViewStates.navigationSelection
+        }
+        .onChange(of: selectedSidebarItem) { newValue in
+          if contentViewStates.navigationSelection != newValue {
+            contentViewStates.navigationSelection = newValue
+          }
+        }
+        .onChange(of: contentViewStates.navigationSelection) { newValue in
+          if selectedSidebarItem != newValue {
+            selectedSidebarItem = newValue
+          }
+        }
         .navigationSplitViewColumnWidth(250)
         .listStyle(.sidebar)
       },
@@ -128,7 +143,7 @@ struct ContentMainView: View {
           if settings.unsafeUI {
             Button(
               action: {
-                contentViewStates.navigationSelection = .expert
+                selectedSidebarItem = .expert
               },
               label: {
                 Label(
@@ -156,7 +171,7 @@ struct ContentMainView: View {
             .background(Color.errorBackground)
           }
 
-          switch contentViewStates.navigationSelection {
+          switch selectedSidebarItem {
           case .simpleModifications:
             SimpleModificationsView()
           case .functionKeys:

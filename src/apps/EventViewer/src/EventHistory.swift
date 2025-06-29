@@ -136,7 +136,7 @@ private func callback(
 
     var buffer = [Int8](repeating: 0, count: 256)
     libkrbn_get_momentary_switch_event_json_string(&buffer, buffer.count, usagePage, usage)
-    let jsonString = String(cString: buffer)
+    let jsonString = String(utf8String: buffer) ?? ""
 
     entry.name = jsonString
 
@@ -146,7 +146,7 @@ private func callback(
 
     if libkrbn_is_modifier_flag(usagePage, usage) {
       libkrbn_get_modifier_flag_name(&buffer, buffer.count, usagePage, usage)
-      let modifierFlagName = String(cString: buffer)
+      let modifierFlagName = String(utf8String: buffer) ?? ""
 
       if EventHistory.shared.modifierFlags[deviceId] == nil {
         EventHistory.shared.modifierFlags[deviceId] = Set()
@@ -188,19 +188,21 @@ private func callback(
   }
 }
 
+@MainActor
 public class EventHistoryEntry: Identifiable, Equatable {
-  public var id = UUID()
+  nonisolated public let id = UUID()
   public var eventType = ""
   public var usagePage = ""
   public var usage = ""
   public var name = ""
   public var misc = ""
 
-  public static func == (lhs: EventHistoryEntry, rhs: EventHistoryEntry) -> Bool {
+  nonisolated public static func == (lhs: EventHistoryEntry, rhs: EventHistoryEntry) -> Bool {
     lhs.id == rhs.id
   }
 }
 
+@MainActor
 public class EventHistory: ObservableObject {
   public static let shared = EventHistory()
 
@@ -210,6 +212,7 @@ public class EventHistory: ObservableObject {
 
   @Published var entries: [EventHistoryEntry] = []
   @Published var unknownEventEntries: [EventHistoryEntry] = []
+  @Published var monitoring = false
 
   // We register the callback in the `start` method rather than in `init`.
   // If libkrbn_register_*_callback is called within init, there is a risk that `init` could be invoked again from the callback through `shared` before the initial `init` completes.
@@ -218,10 +221,14 @@ public class EventHistory: ObservableObject {
     libkrbn_enable_hid_value_monitor()
 
     libkrbn_register_hid_value_arrived_callback(callback)
+
+    monitoring = true
   }
 
   public func stop() {
     libkrbn_disable_hid_value_monitor()
+
+    monitoring = false
   }
 
   public func observed() -> Bool {
